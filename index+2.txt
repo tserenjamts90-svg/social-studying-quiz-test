@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Нийгмийн Ухааны Цахим Сорил</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 650px;
+            border: 1px solid var(--border-color);
+        }
+
+        h1 {
+            font-size: 22px;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            text-align: center;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .cat-btn {
+            background-color: #0f172a;
+            border: 2px solid var(--border-color);
+            color: var(--text-main);
+            padding: 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .cat-btn:hover {
+            border-color: var(--primary);
+        }
+
+        .cat-btn.selected {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .option-btn {
+            display: block;
+            width: 100%;
+            padding: 14px 16px;
+            margin: 10px 0;
+            background-color: #0f172a;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            text-align: left;
+            font-size: 15px;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-btn:hover {
+            border-color: var(--primary);
+        }
+
+        .option-btn.correct {
+            background-color: rgba(16, 185, 129, 0.2);
+            border-color: #10b981;
+            color: #34d399;
+        }
+
+        .option-btn.wrong {
+            background-color: rgba(239, 68, 68, 0.2);
+            border-color: #ef4444;
+            color: #f87171;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.2s;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .timer-bar {
+            height: 6px;
+            background-color: var(--border-color);
+            border-radius: 3px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .timer-progress {
+            height: 100%;
+            background-color: var(--primary);
+            width: 100%;
+            transition: width 1s linear;
+        }
+
+        .flex-row {
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        #quiz-screen, #result-screen {
+            display: none;
+        }
+
+        #start-screen {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="app">
+    <!-- Эхлэх хэсэг -->
+    <div id="start-screen">
+        <h1>Нийгмийн Ухааны Цахим Сорил</h1>
+        <p class="subtitle">Өөрийн мэдлэгээ сорих сэдвээ сонгоно уу</p>
+        
+        <div class="category-grid" id="category-container">
+            <button class="cat-btn selected" onclick="selectCategory('Бүгд', this)">Бүх сэдэв</button>
+            <button class="cat-btn" onclick="selectCategory('Социологи', this)">Социологи</button>
+            <button class="cat-btn" onclick="selectCategory('Логик', this)">Логик</button>
+            <button class="cat-btn" onclick="selectCategory('Эдийн засаг', this)">Эдийн засаг</button>
+            <button class="cat-btn" onclick="selectCategory('Улс төр', this)">Улс төр</button>
+            <button class="cat-btn" onclick="selectCategory('Эрх зүй', this)">Эрх зүй</button>
+            <button class="cat-btn" onclick="selectCategory('Олон улсын харилцаа', this)">Олон улсын харилцаа</button>
+        </div>
+
+        <button class="btn-primary" onclick="startQuiz()">Сорилыг эхлүүлэх</button>
+    </div>
+
+    <!-- Сорилын явц -->
+    <div id="quiz-screen">
+        <div class="flex-row">
+            <span id="question-counter">Асуулт 1/5</span>
+            <span id="timer-text">Хугацаа: 30с</span>
+        </div>
+        <div class="timer-bar">
+            <div class="timer-progress" id="timer-progress"></div>
+        </div>
+        
+        <h2 id="question-text" style="font-size: 18px; margin-bottom: 20px;">Асуулт гарч ирнэ</h2>
+        <div id="options-container"></div>
+        <button id="next-btn" class="btn-primary" style="display: none;" onclick="nextQuestion()">Дараагийн асуулт</button>
+    </div>
+
+    <!-- Үр дүнгийн хэсэг -->
+    <div id="result-screen" style="text-align: center;">
+        <h2>Сорил дууслаа!</h2>
+        <p id="result-score" style="font-size: 20px; margin: 20px 0; color: var(--text-main);"></p>
+        <button class="btn-primary" onclick="location.reload()">Дахин эхлэх</button>
+    </div>
+</div>
+
+<script>
+    // Энд та өөрийн хүссэн асуултуудаа нэмж, хасаж болно
+    const allQuizData = [
+        {
+            category: "Социологи",
+            question: "Нийгмийн харилцааны үндсэн хэлбэр аль нь вэ?",
+            options: ["Ганцаарчилсан байдал", "Харилцан үйлдэл ба харилцаа", "Зөвхөн эдийн засгийн ашиг сонирхол", "Технологийн хэрэглээ"],
+            correct: 1
+        },
+        {
+            category: "Логик",
+            question: "Бүх хүн мөнх бус. Сократ бол хүн. Иймд Сократ мөнх бус гэсэн дүгнэлт нь ямар ухагдахуун бэ?",
+            options: ["Индукц", "Дедукц", "Харьцуулалт", "Аналоги"],
+            correct: 1
+        },
+        {
+            category: "Эдийн засаг",
+            question: "Зах зээлийн эдийн засгийн үед үнийг үндсэндээ юу тодорхойlodog вэ?",
+            options: ["Засгийн газрын тогтоол", "Эрэлт ба нийлүүлэлт", "Үйлдвэрлэгчдийн холбоо", "Банкны хүү"],
+            correct: 1
+        },
+        {
+            category: "Улс төр",
+            question: "Монгол Улсын төрийн эрх барих дээд байгууллага аль нь вэ?",
+            options: ["Засгийн газар", "Улсын Их Хурал", "Дээд шүүх", "Үндэсний аюулгүй байдлын зөвлөл"],
+            correct: 1
+        },
+        {
+            category: "Эрх зүй",
+            question: "Монгол Улсын одоогийн Үндсэн хууль хэдэн онд батлагдсан бэ?",
+            options: ["1924 он", "1940 он", "1960 он", "1992 он"],
+            correct: 3
+        },
+        {
+            category: "Олон улсын харилцаа",
+            question: "НҮБ (Нэгдсэн Үндэстний Байгууллага) хэдэн онд байгуулагдсан бэ?",
+            options: ["1919 он", "1945 он", "1950 он", "1990 он"],
+            correct: 1
+        }
+    ];
+
+    let selectedCategory = "Бүгд";
+    let activeQuestions = [];
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let answered = false;
+    let timer;
+    let timeLeft = 30;
+
+    function selectCategory(category, btn) {
+        selectedCategory = category;
+        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+    }
+
+    function startQuiz() {
+        if (selectedCategory === "Бүгд") {
+            activeQuestions = [...allQuizData];
+        } else {
+            activeQuestions = allQuizData.filter(q => q.category === selectedCategory);
+        }
+
+        if (activeQuestions.length === 0) {
+            alert("Энэ ангилалд одоогоор асуулт байхгүй байна!");
+            return;
+        }
+
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('quiz-screen').style.display = 'block';
+        currentQuestionIndex = 0;
+        score = 0;
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        clearInterval(timer);
+        answered = false;
+        document.getElementById('next-btn').style.display = "none";
+        
+        const currentQ = activeQuestions[currentQuestionIndex];
+        document.getElementById('question-counter').innerText = `Асуулт ${currentQuestionIndex + 1}/${activeQuestions.length} (${currentQ.category})`;
+        document.getElementById('question-text').innerText = currentQ.question;
+
+        const optionsContainer = document.getElementById('options-container');
+        optionsContainer.innerHTML = "";
+
+        currentQ.options.forEach((option, index) => {
+            const btn = document.createElement("button");
+            btn.classList.add("option-btn");
+            btn.innerText = option;
+            btn.onclick = () => selectOption(index);
+            optionsContainer.appendChild(btn);
+        });
+
+        startTimer();
+    }
+
+    function startTimer() {
+        timeLeft = 30;
+        document.getElementById('timer-text').innerText = `Хугацаа: ${timeLeft}с`;
+        document.getElementById('timer-progress').style.width = "100%";
+        
+        timer = setInterval(() => {
+            timeLeft--;
+            document.getElementById('timer-text').innerText = `Хугацаа: ${timeLeft}с`;
+            document.getElementById('timer-progress').style.width = (timeLeft / 30 * 100) + "%";
+
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                autoSelectWrong();
+            }
+        }, 1000);
+    }
+
+    function autoSelectWrong() {
+        if (answered) return;
+        answered = true;
+        const currentQ = activeQuestions[currentQuestionIndex];
+        const buttons = document.getElementById('options-container').getElementsByClassName('option-btn');
+        buttons[currentQ.correct].classList.add('correct');
+        document.getElementById('next-btn').style.display = "block";
+    }
+
+    function selectOption(selectedIndex) {
+        if (answered) return;
+        answered = true;
+        clearInterval(timer);
+
+        const currentQ = activeQuestions[currentQuestionIndex];
+        const buttons = document.getElementById('options-container').getElementsByClassName('option-btn');
+
+        if (selectedIndex === currentQ.correct) {
+            buttons[selectedIndex].classList.add('correct');
+            score++;
+        } else {
+            buttons[selectedIndex].classList.add('wrong');
+            buttons[currentQ.correct].classList.add('correct');
+        }
+
+        document.getElementById('next-btn').style.display = "block";
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < activeQuestions.length) {
+            loadQuestion();
+        } else {
+            showResult();
+        }
+    }
+
+    function showResult() {
+        clearInterval(timer);
+        document.getElementById('quiz-screen').style.display = 'none';
+        document.getElementById('result-screen').style.display = 'block';
+        document.getElementById('result-score').innerText = `Таны авсан оноо: ${score} / ${activeQuestions.length}`;
+    }
+</script>
+
+</body>
+</html>
